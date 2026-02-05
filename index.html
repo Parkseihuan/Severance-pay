@@ -236,13 +236,13 @@
                         <input type="text" id="salary3" placeholder="2500000 형식으로 입력">
                     </div>
                     <div class="form-group">
-                        <label for="bonus">상여금 (비정기수당×3/12)</label>
+                        <label for="bonus">연간 상여금 총액 (자동으로 3/12 적용)</label>
                         <input type="text" id="bonus" placeholder="0 (없으면 0)">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="annualLeave">연차수당 (전학년도 연차수당×3/12)</label>
+                        <label for="annualLeave">전년도 연차수당 총액 (자동으로 3/12 적용)</label>
                         <input type="text" id="annualLeave" placeholder="0 (없으면 0)">
                     </div>
                 </div>
@@ -308,9 +308,10 @@
             <!-- 계산 공식 안내 -->
             <div class="formula-info">
                 <h4>📘 계산 공식</h4>
-                <p><strong>1일 평균임금</strong> = 최근 3개월 임금 총액 (A+B+C) ÷ 퇴직일 이전 3개월간의 총 일수</p>
-                <p><strong>1일 통상임금</strong> = (기본임금+상여금 (A+B) ÷ 209) × 8</p>
+                <p><strong>1일 평균임금</strong> = (최근 3개월 기본임금(A) + 연간상여금×3/12(B) + 전년도연차수당×3/12(C)) ÷ 퇴직일 이전 3개월간의 총 일수</p>
+                <p><strong>1일 통상임금</strong> = ((월평균 기본임금 + 월평균 상여금) ÷ 209) × 8</p>
                 <p><strong>퇴직금</strong> = 근무년수 × 30일 × (1일 평균임금 또는 1일 통상임금 중 큰 값)</p>
+                <p><strong>※ 연간 상여금과 전년도 연차수당은 입력 시 총액을 입력하면 자동으로 3/12가 적용됩니다.</strong></p>
                 <p><strong>※ 1일 평균임금/통상임금은 소수점 둘째자리에서 내림 처리됩니다.</strong></p>
             </div>
             
@@ -468,8 +469,8 @@
 
             // 기본 계산
             const totalBaseSalary = salary1 + salary2 + salary3;
-            const totalBonus = getNumericValue('bonus');
-            const totalAnnualLeave = getNumericValue('annualLeave');
+            const totalBonus = Math.round(getNumericValue('bonus') * 3 / 12);
+            const totalAnnualLeave = Math.round(getNumericValue('annualLeave') * 3 / 12);
             const totalWage = totalBaseSalary + totalBonus + totalAnnualLeave;
 
             // 근무년수 계산
@@ -483,7 +484,7 @@
             const avgRetirement = Math.round(workYears * 30 * avgDailyWage);
 
             // 1일 통상임금 계산 (소수점 둘째자리에서 내림)
-            const monthlyOrdinaryWage = (totalBaseSalary + totalBonus) / 3;
+            const monthlyOrdinaryWage = (totalBaseSalary / 3) + (getNumericValue('bonus') / 12);
             const ordinaryDailyWageRaw = (monthlyOrdinaryWage / 209) * 8;
             const ordinaryDailyWage = Math.floor(ordinaryDailyWageRaw * 100) / 100;
 
